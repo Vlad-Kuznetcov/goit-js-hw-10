@@ -2,13 +2,13 @@ import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
 const refs = {
-  formEl: document.querySelector('.form'),
-  btnEl: document.querySelector('button'),
+  form: document.querySelector('.form'),
+  // btn: document.querySelector('button'),
 };
 
-refs.formEl.addEventListener('submit', e => {
+refs.form.addEventListener('submit', e => {
   e.preventDefault();
-  const formData = new FormData(refs.formEl);
+  const formData = new FormData(refs.form);
   const delay = formData.get('delay');
   const status = formData.get('state');
 

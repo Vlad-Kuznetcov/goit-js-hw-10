@@ -3,35 +3,9 @@ import 'flatpickr/dist/flatpickr.min.css';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
-document.body.style.backgroundColor = '#fff';
-
-const options = {
-  enableTime: true,
-  time_24hr: true,
-  defaultDate: new Date(),
-  minuteIncrement: 1,
-  onClose(selectedDates) {
-    const selectedDate = selectedDates[0];
-    if (selectedDate <= new Date()) {
-      iziToast.error({
-        title: 'Error',
-        message: 'Please choose a date in the future',
-      });
-      startButton.disabled = true;
-      startButton.classList.remove('active-btn');
-      datetimePicker.classList.remove('active-input');
-    } else {
-      userSelectedDate = selectedDate;
-      startButton.disabled = false;
-      startButton.classList.add('active-btn');
-      datetimePicker.classList.add('active-input');
-    }
-  },
-};
-
-const datetimePicker = document.getElementById('datetime-picker');
-const startButton = document.querySelector('button[data-start]');
-const timerFields = {
+const dateTimePicker = document.querySelector('#datetime-picker');
+const startBtn = document.querySelector('button');
+const timerField = {
   days: document.querySelector('[data-days]'),
   hours: document.querySelector('[data-hours]'),
   minutes: document.querySelector('[data-minutes]'),
@@ -39,39 +13,56 @@ const timerFields = {
 };
 
 let userSelectedDate = null;
-let countdownInterval = null;
+let countDownInterval = null;
 
-startButton.disabled = true;
-flatpickr(datetimePicker, options);
-startButton.addEventListener('click', startCountdown);
+const options = {
+  enableTime: true,
+  time_24hr: true,
+  defaultDate: new Date(),
+  minuteIncrement: 1,
+  onClose(selectedDates) {
+    const selectDate = selectedDates[0];
 
-function startCountdown() {
-  startButton.disabled = true;
-  datetimePicker.disabled = true;
+    if (selectDate <= new Date()) {
+      iziToast.error({
+        title: 'Error',
+        message: 'Please choose a date in the future',
+      });
+      startBtn.disabled = true;
+    } else {
+      userSelectedDate = selectDate;
+      startBtn.disabled = false;
+    }
+  },
+};
+
+flatpickr(dateTimePicker, options);
+startBtn.addEventListener('click', startCount);
+
+function startCount() {
+  dateTimePicker.disabled = true;
+  startBtn.disabled = true;
 
   iziToast.success({
     title: 'Timer started',
     message: 'The timer was run successfully',
   });
 
-  countdownInterval = setInterval(() => {
+  countDownInterval = setInterval(() => {
     const currentTime = new Date();
-    const timeDifference = userSelectedDate - currentTime;
-    datetimePicker.classList.add('active-clock');
+    const timeDiff = userSelectedDate - currentTime;
 
-    if (timeDifference < 1000) {
-      document.body.style.backgroundColor = 'red';
-      setTimeout(() => {
-        document.body.style.backgroundColor = '#fff';
-      }, 1000);
-      clearInterval(countdownInterval);
+    if (timeDiff < 1000) {
+      iziToast.success({
+        title: 'Timer done',
+        message: 'The timer has finished working',
+      });
+      clearInterval(countDownInterval);
       updateTimerDisplay(0, 0, 0, 0);
-      datetimePicker.disabled = false;
-      datetimePicker.classList.remove('active-clock');
+      dateTimePicker.disabled = false;
       return;
     }
-
-    const timeLeft = convertMs(timeDifference);
+    const timeLeft = convertMs(timeDiff);
     updateTimerDisplay(
       timeLeft.days,
       timeLeft.hours,
@@ -88,8 +79,11 @@ function convertMs(ms) {
   const day = hour * 24;
 
   const days = Math.floor(ms / day);
+
   const hours = Math.floor((ms % day) / hour);
+
   const minutes = Math.floor(((ms % day) % hour) / minute);
+
   const seconds = Math.floor((((ms % day) % hour) % minute) / second);
 
   return { days, hours, minutes, seconds };
@@ -100,8 +94,8 @@ function addLeadingZero(value) {
 }
 
 function updateTimerDisplay(days, hours, minutes, seconds) {
-  timerFields.days.textContent = addLeadingZero(days);
-  timerFields.hours.textContent = addLeadingZero(hours);
-  timerFields.minutes.textContent = addLeadingZero(minutes);
-  timerFields.seconds.textContent = addLeadingZero(seconds);
+  timerField.days.textContent = addLeadingZero(days);
+  timerField.hours.textContent = addLeadingZero(hours);
+  timerField.minutes.textContent = addLeadingZero(minutes);
+  timerField.seconds.textContent = addLeadingZero(seconds);
 }
